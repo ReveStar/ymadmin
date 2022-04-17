@@ -30,13 +30,12 @@
       </el-table-column>
       <el-table-column label="课程名" align="center" width="100">
         <template slot-scope="{row}">
-          <span>{{ row.subject_id }}</span>
+          <span>{{ row.subject }}</span>
         </template>
       </el-table-column>
       <el-table-column label="学生" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.student }}</span>
-          <!-- <span>{{ row.create_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span> -->
         </template>
       </el-table-column>
       <el-table-column label="教练" width="150px" align="center">
@@ -80,17 +79,20 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="课程名" prop="subject_name">
-          <el-input v-model="temp.subject_id" />
+        <el-form-item label="课程名" prop="subject">
+          <el-select v-model="temp.subject_id" placeholder="请选择课程" @change="handleSelectSubject(temp.subject_id)">
+            <el-option v-for="item in subjectList" :key="item.subject_id" :label="item.name" :value="item.subject_id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="学生" prop="student">
-          <el-input v-model="temp.student" />
-          <!-- <el-select v-model="temp.student" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in courseStatusOptions" :key="item" :label="item" :value="item" />
-          </el-select> -->
+          <el-select v-model="temp.student_id" placeholder="选择学生" @change="handleSelectStudent(temp.student_id)">
+            <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="教练" prop="teacher">
-          <el-input v-model="temp.teacher" />
+          <el-select v-model="temp.teacher_id" placeholder="选择教师" @change="handleSelectTeacher(temp.teacher_id)">
+            <el-option v-for="item in teacherList" :key="item.account_id" :label="item.username" :value="item.account_id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="地点" prop="location">
           <el-input v-model="temp.location" />
@@ -121,6 +123,8 @@
 
 <script>
 import { fetchCourseList, searchCourses, createCourse, deleteCourse, updateCourse } from '@/api/course'
+import { getStudents, getTeachers } from '@/api/user'
+import { fetchSubjectList } from '@/api/subject'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -144,6 +148,9 @@ export default {
     return {
       tableKey: 0,
       list: null,
+      studentAccounts: null,
+      subjectList: null,
+      teacherList: null,
       total: 0,
       listLoading: true,
       listQuery: {
@@ -157,11 +164,14 @@ export default {
       temp: {
         id: undefined,
         subject_id: '',
+        subject: '',
         student: '',
+        student_id: '',
         teacher: '',
+        teacher_id: '',
         start_time: new Date(),
         end_time: new Date(),
-        status: 'published'
+        status: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -172,13 +182,15 @@ export default {
     }
   },
   created() {
+    this.getStudentAccounts()
+    this.getSubjectList()
+    this.getTeacherAccounts()
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
       fetchCourseList().then(response => {
-        console.log(response)
         const { courses } = response
         this.list = courses
         this.total = courses.length
@@ -204,12 +216,15 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: '',
-        type: ''
+        subject_id: '',
+        subject: '',
+        student: '',
+        student_id: '',
+        teacher: '',
+        teacher_id: '',
+        start_time: new Date(),
+        end_time: new Date(),
+        status: '未开始'
       }
     },
     handleCreate() {
@@ -273,6 +288,45 @@ export default {
           duration: 2000
         })
         this.getList()
+      })
+    },
+    getStudentAccounts() {
+      getStudents().then(response => {
+        const { students } = response
+        this.studentAccounts = students
+      })
+    },
+    getSubjectList() {
+      fetchSubjectList().then(response => {
+        const { subjects } = response
+        this.subjectList = subjects
+      })
+    },
+    getTeacherAccounts() {
+      getTeachers().then(response => {
+        const { teachers } = response
+        this.teacherList = teachers
+      })
+    },
+    handleSelectStudent(studentId) {
+      this.studentAccounts.forEach(element => {
+        if (element.account_id === studentId) {
+          this.temp.student = element.username
+        }
+      })
+    },
+    handleSelectSubject(subjectId) {
+      this.subjectList.forEach(element => {
+        if (element.subject_id === subjectId) {
+          this.temp.subject = element.name
+        }
+      })
+    },
+    handleSelectTeacher(teacherId) {
+      this.teacherList.forEach(element => {
+        if (element.account_id === teacherId) {
+          this.temp.teacher = element.username
+        }
       })
     }
   }

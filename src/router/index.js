@@ -10,6 +10,7 @@ import Layout from '@/layout'
 import accountRouter from './modules/account'
 import studentRouter from './modules/student'
 import courseRouter from './modules/course'
+import subjectRouter from './modules/subject'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -89,6 +90,7 @@ export const asyncRoutes = [
   accountRouter,
   studentRouter,
   courseRouter,
+  subjectRouter,
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

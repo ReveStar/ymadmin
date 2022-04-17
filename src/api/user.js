@@ -66,3 +66,17 @@ export function searchAccount(data) {
     params: data
   })
 }
+
+export function getStudents() {
+  return request({
+    url: 'account/students',
+    method: 'get'
+  })
+}
+
+export function getTeachers() {
+  return request({
+    url: 'account/teachers',
+    method: 'get'
+  })
+}

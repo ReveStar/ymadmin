@@ -97,8 +97,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'rym-admin',
-        password: 'rym.admin'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],

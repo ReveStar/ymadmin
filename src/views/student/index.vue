@@ -19,14 +19,9 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="ID" prop="id" align="center" width="80">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="课程名" align="center" width="100">
         <template slot-scope="{row}">
-          <span>{{ row.subject_id }}</span>
+          <span>{{ row.subject }}</span>
         </template>
       </el-table-column>
       <el-table-column label="学生" width="150px" align="center">
@@ -80,11 +75,16 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="课程名" prop="subject_name">
-          <el-input v-model="temp.subject_id" />
+        <el-form-item label="课程名" prop="subject">
+          <el-select v-model="temp.subject_id" placeholder="请选择课程" @change="handleSelectSubject(temp.subject_id)">
+            <el-option v-for="item in subjectList" :key="item.subject_id" :label="item.name" :value="item.subject_id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="学生" prop="student">
-          <el-input v-model="temp.student" />
+          <el-input v-if="dialogStatus!=='create'" v-model="temp.student" disabled="true" />
+          <el-select v-else v-model="temp.student_id" placeholder="选择学生" @change="handleSelectStudent(temp.student_id)">
+            <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="总课时" prop="course_all">
           <el-input v-model.number="temp.course_all" type="number" />
@@ -119,6 +119,9 @@
 
 <script>
 import { fetchStudentsList, updateStudent, createStudent, deleteStudent, searchStudent } from '@/api/student'
+import { getStudents } from '@/api/user'
+import { fetchSubjectList } from '@/api/subject'
+
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -139,6 +142,8 @@ export default {
   data() {
     return {
       tableKey: 0,
+      studentAccounts: null,
+      subjectList: null,
       list: null,
       total: 0,
       listLoading: true,
@@ -150,7 +155,9 @@ export default {
       temp: {
         id: undefined,
         subject_id: '',
+        subject: '',
         student: '',
+        student_id: '',
         course_all: null,
         course_left: null,
         course_used: null,
@@ -169,6 +176,8 @@ export default {
     }
   },
   created() {
+    this.getStudentAccounts()
+    this.getSubjectList()
     this.getList()
   },
   methods: {
@@ -180,6 +189,18 @@ export default {
         this.list = students
         this.total = students.length
         this.listLoading = false
+      })
+    },
+    getStudentAccounts() {
+      getStudents().then(response => {
+        const { students } = response
+        this.studentAccounts = students
+      })
+    },
+    getSubjectList() {
+      fetchSubjectList().then(response => {
+        const { subjects } = response
+        this.subjectList = subjects
       })
     },
     handleFilter() {
@@ -198,9 +219,33 @@ export default {
         this.list = students
       })
     },
+    handleSelectStudent(studentId) {
+      this.studentAccounts.forEach(element => {
+        if (element.account_id === studentId) {
+          this.temp.student = element.username
+        }
+      })
+    },
+    handleSelectSubject(subjectId) {
+      this.subjectList.forEach(element => {
+        if (element.subject_id === subjectId) {
+          this.temp.subject = element.name
+        }
+      })
+    },
     resetTemp() {
       this.temp = {
-        id: undefined
+        id: undefined,
+        subject_id: '',
+        subject: '',
+        student: '',
+        student_id: '',
+        course_all: null,
+        course_left: null,
+        course_used: null,
+        course_free: null,
+        charge_all: null,
+        charge_deli: null
       }
     },
     handleCreate() {
@@ -214,6 +259,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          console.log('temp==', this.temp)
           createStudent(this.temp).then(() => {
             this.dialogFormVisible = false
             this.$notify({
