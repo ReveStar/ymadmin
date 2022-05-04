@@ -9,7 +9,7 @@ const subjectRouter = {
       path: 'index',
       component: () => import('@/views/subject/index'),
       name: 'subject',
-      meta: { title: '课程', icon: 'table', affix: true }
+      meta: { title: '已开课程', icon: 'table', affix: true }
     }
   ]
 }

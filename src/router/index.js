@@ -11,7 +11,7 @@ import accountRouter from './modules/account'
 import studentRouter from './modules/student'
 import courseRouter from './modules/course'
 import subjectRouter from './modules/subject'
-
+import orderRouter from './modules/order'
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -91,6 +91,7 @@ export const asyncRoutes = [
   studentRouter,
   courseRouter,
   subjectRouter,
+  orderRouter,
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

@@ -9,7 +9,7 @@ const courseRouter = {
       path: 'index',
       component: () => import('@/views/course/index'),
       name: 'course',
-      meta: { title: '课表', icon: 'table', affix: true }
+      meta: { title: '课表安排', icon: 'table', affix: true }
     }
   ]
 }

@@ -9,7 +9,7 @@ const accountRouter = {
       path: 'index',
       component: () => import('@/views/account/index'),
       name: 'account',
-      meta: { title: '账户', icon: 'table', affix: true }
+      meta: { title: '账户信息', icon: 'table', affix: true }
     }
   ]
 }
