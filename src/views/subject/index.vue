@@ -3,10 +3,10 @@
     <div class="filter-container">
       <el-input v-model="listQuery.name" placeholder="课程名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        Search
+        搜索
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        Add
+        添加
       </el-button>
     </div>
 
@@ -34,6 +34,11 @@
           <span>{{ row.price }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="优惠价格" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.discount_price }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="课时数" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.school_hour }}</span>
@@ -47,10 +52,10 @@
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            Edit
+            编辑
           </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
-            Delete
+            删除
           </el-button>
         </template>
       </el-table-column>
@@ -68,6 +73,9 @@
         </el-form-item>
         <el-form-item label="学费" prop="price">
           <el-input v-model="temp.price" />
+        </el-form-item>
+        <el-form-item label="优惠价格" prop="discount_price">
+          <el-input v-model="temp.discount_price" />
         </el-form-item>
         <el-form-item label="课时数" prop="school_hour">
           <el-input-number v-model="temp.school_hour" />
@@ -122,6 +130,7 @@ export default {
         id: undefined,
         subject_id: '',
         price: '',
+        discount_price: '',
         name: '',
         describ: '',
         school_hour: undefined
@@ -169,6 +178,7 @@ export default {
         id: undefined,
         subject_id: '',
         price: '',
+        discount_price: '',
         name: '',
         describ: '',
         school_hour: 1
