@@ -50,12 +50,12 @@
       </el-table-column>
       <el-table-column label="开始时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.start_time }}</span>
+          <span>{{ row.start_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="结束时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.end_time }}</span>
+          <span>{{ row.end_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="150px">
@@ -98,10 +98,10 @@
           <el-input v-model="temp.location" />
         </el-form-item>
         <el-form-item label="开始时间" prop="start_time">
-          <el-date-picker v-model="temp.start_time" type="datetime" placeholder="Please pick a date" />
+          <el-date-picker v-model="temp.start_time" type="datetime" value-format="timestamp" placeholder="Please pick a date" />
         </el-form-item>
         <el-form-item label="结束时间" prop="end_time">
-          <el-date-picker v-model="temp.end_time" type="datetime" placeholder="Please pick a date" />
+          <el-date-picker v-model="temp.end_time" type="datetime" value-format="timestamp" placeholder="Please pick a date" />
         </el-form-item>
         <el-form-item v-if="dialogStatus!=='create'" label="状态">
           <el-select v-model="temp.status" class="filter-item" placeholder="Please select">

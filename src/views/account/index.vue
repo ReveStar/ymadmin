@@ -50,13 +50,12 @@
       </el-table-column>
       <el-table-column label="创建时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.create_at }}</span>
-          <!-- <span>{{ row.create_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span> -->
+          <span>{{ row.create_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新时间" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.update_at }}</span>
+          <span>{{ row.update_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
