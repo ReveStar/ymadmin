@@ -29,12 +29,12 @@
           <span>{{ row.subject_id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学费" width="150px" align="center">
+      <el-table-column label="课程价格" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.price }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="优惠价格" width="150px" align="center">
+      <el-table-column label="团购价格" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.discount_price }}</span>
         </template>
@@ -71,10 +71,10 @@
         <el-form-item label="课程ID" prop="subject_id">
           <el-input v-model="temp.subject_id" />
         </el-form-item>
-        <el-form-item label="学费" prop="price">
+        <el-form-item label="课程价格" prop="price">
           <el-input v-model="temp.price" />
         </el-form-item>
-        <el-form-item label="优惠价格" prop="discount_price">
+        <el-form-item label="团购价格" prop="discount_price">
           <el-input v-model="temp.discount_price" />
         </el-form-item>
         <el-form-item label="课时数" prop="school_hour">
@@ -100,6 +100,7 @@
 import { fetchSubjectList, searchSubjects, createSubject, deleteSubject, updateSubject } from '@/api/subject'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import { MessageBox } from 'element-ui'
 
 export default {
   name: 'Subject',
@@ -235,15 +236,21 @@ export default {
       })
     },
     handleDelete(row, index) {
-      const tempData = Object.assign({}, row)
-      deleteSubject(tempData).then(() => {
-        this.$notify({
-          title: 'Success',
-          message: 'Delete Successfully',
-          type: 'success',
-          duration: 2000
+      MessageBox.confirm('确认删除', '删除', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const tempData = Object.assign({}, row)
+        deleteSubject(tempData).then(() => {
+          this.$notify({
+            title: 'Success',
+            message: 'Delete Successfully',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
         })
-        this.getList()
       })
     }
   }

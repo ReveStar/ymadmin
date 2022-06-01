@@ -106,6 +106,7 @@
 
 <script>
 import { getAll, updateAccount, createAccount, deleteAccount, searchAccount } from '@/api/user'
+import { MessageBox } from 'element-ui'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -252,15 +253,21 @@ export default {
       })
     },
     handleDelete(row, index) {
-      const tempData = Object.assign({}, row)
-      deleteAccount(tempData).then(() => {
-        this.$notify({
-          title: 'Success',
-          message: 'Delete Successfully',
-          type: 'success',
-          duration: 2000
+      MessageBox.confirm('确认删除', '删除', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const tempData = Object.assign({}, row)
+        deleteAccount(tempData).then(() => {
+          this.$notify({
+            title: 'Success',
+            message: 'Delete Successfully',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
         })
-        this.getList()
       })
     }
   }
