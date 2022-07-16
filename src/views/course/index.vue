@@ -63,6 +63,11 @@
           <span> {{ row.status }} </span>
         </template>
       </el-table-column>
+      <el-table-column label="备注" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.remark }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
@@ -107,6 +112,9 @@
           <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
             <el-option v-for="item in courseStatusOptions" :key="item" :label="item" :value="item" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="temp.remark" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -172,7 +180,8 @@ export default {
         teacher_id: '',
         start_time: new Date(),
         end_time: new Date(),
-        status: ''
+        status: '',
+        remark: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
