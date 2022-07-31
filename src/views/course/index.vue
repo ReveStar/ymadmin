@@ -43,6 +43,11 @@
           <span>{{ row.teacher }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="班级" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.class }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="地点" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.location }}</span>
@@ -98,6 +103,9 @@
           <el-select v-model="temp.teacher_id" placeholder="选择教师" @change="handleSelectTeacher(temp.teacher_id)">
             <el-option v-for="item in teacherList" :key="item.account_id" :label="item.username" :value="item.account_id" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="班级" prop="class">
+          <el-input v-model="temp.class" />
         </el-form-item>
         <el-form-item label="地点" prop="location">
           <el-input v-model="temp.location" />
@@ -181,7 +189,8 @@ export default {
         start_time: new Date(),
         end_time: new Date(),
         status: '',
-        remark: ''
+        remark: '',
+        class: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
