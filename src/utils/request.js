@@ -1,13 +1,13 @@
-import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken, getAccount } from '@/utils/auth'
+import { getAccount, getToken } from '@/utils/auth'
+import axios from 'axios'
+import { Message, MessageBox } from 'element-ui'
 
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 0 // request timeout
 })
 
 // request interceptor
