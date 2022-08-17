@@ -105,7 +105,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="课时" prop="school_hour">
-          <el-input v-model.number="temp.school_hour" />
+          <el-input-number v-model="temp.school_hour" :precision="1" :step="0.1" />
         </el-form-item>
         <el-form-item label="地点" prop="location">
           <el-input v-model="temp.location" />
