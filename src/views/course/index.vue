@@ -43,9 +43,9 @@
           <span>{{ row.teacher }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="班级" width="150px" align="center">
+      <el-table-column label="课时" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.class }}</span>
+          <span>{{ row.school_hour }}</span>
         </template>
       </el-table-column>
       <el-table-column label="地点" width="150px" align="center">
@@ -104,8 +104,8 @@
             <el-option v-for="item in teacherList" :key="item.account_id" :label="item.username" :value="item.account_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="班级" prop="class">
-          <el-input v-model="temp.class" />
+        <el-form-item label="课时" prop="school_hour">
+          <el-input-number v-model="temp.school_hour" :precision="1" :step="0.1" />
         </el-form-item>
         <el-form-item label="地点" prop="location">
           <el-input v-model="temp.location" />
@@ -186,6 +186,7 @@ export default {
         student_id: '',
         teacher: '',
         teacher_id: '',
+        school_hour: 1.0,
         start_time: new Date(),
         end_time: new Date(),
         status: '',
@@ -241,6 +242,7 @@ export default {
         student_id: '',
         teacher: '',
         teacher_id: '',
+        school_hour: 1.0,
         start_time: new Date(),
         end_time: new Date(),
         status: '未开始'
