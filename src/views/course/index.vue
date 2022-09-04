@@ -190,7 +190,8 @@ export default {
         start_time: new Date(),
         end_time: new Date(),
         status: '',
-        remark: ''
+        remark: '',
+        class: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
