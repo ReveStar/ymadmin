@@ -6,6 +6,15 @@
       <el-select v-model="listQuery.status" placeholder="课程状态" clearable class="filter-item" style="width: 130px">
         <el-option v-for="item in courseStatusOptions" :key="item" :label="item" :value="item" />
       </el-select>
+      <el-date-picker
+        v-model="listQuery.timeRange"
+        style="width: 400px;"
+        class="filter-item"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -23,11 +32,6 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="ID" prop="id" align="center" width="80">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="课程名" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.subject }}</span>
@@ -175,7 +179,10 @@ export default {
         limit: 20,
         student: null,
         teacher: null,
-        status: ''
+        status: '',
+        timeRange: null,
+        startTime: null,
+        endTime: null
       },
       courseStatusOptions,
       temp: {
@@ -211,17 +218,21 @@ export default {
     getList() {
       this.listLoading = true
       fetchCourseList().then(response => {
-        const { courses } = response
+        const { courses, total } = response
         this.list = courses
-        this.total = courses.length
+        this.total = total
         this.listLoading = false
       })
     },
     handleFilter() {
       this.listQuery.page = 1
+      if (this.listQuery.timeRange != null) {
+        this.listQuery.startTime = this.listQuery.timeRange[0]
+        this.listQuery.endTime = this.listQuery.timeRange[1]
+      }
       searchCourses(this.listQuery).then((response) => {
-        const { courses } = response
-        this.total = courses.length
+        const { courses, total } = response
+        this.total = total
         this.list = courses
       })
     },

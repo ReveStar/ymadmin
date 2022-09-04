@@ -23,11 +23,6 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="ID" prop="id" align="center" width="80">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="账号ID" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.account_id }}</span>
@@ -170,17 +165,17 @@ export default {
     getList() {
       this.listLoading = true
       getAll().then(response => {
-        const { accounts } = response
+        const { accounts, total } = response
         this.list = accounts
-        this.total = accounts.length
+        this.total = total
         this.listLoading = false
       })
     },
     handleFilter() {
       this.listQuery.page = 1
       searchAccount(this.listQuery).then((response) => {
-        const { accounts } = response
-        this.total = accounts.length
+        const { accounts, total } = response
+        this.total = total
         this.list = accounts
       })
     },

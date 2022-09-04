@@ -159,9 +159,9 @@ export default {
     getList() {
       this.listLoading = true
       fetchOrderList().then(response => {
-        const { orders } = response
+        const { orders, total } = response
         this.list = orders
-        this.total = orders.length
+        this.total = total
         this.listLoading = false
       })
     },
@@ -180,8 +180,8 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       searchOrder(this.listQuery).then((response) => {
-        const { orders } = response
-        this.total = orders.length
+        const { orders, total } = response
+        this.total = total
         this.list = orders
       })
     },

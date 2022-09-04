@@ -184,10 +184,9 @@ export default {
     getList() {
       this.listLoading = true
       fetchStudentsList().then(response => {
-        console.log(response)
-        const { students } = response
+        const { students, total } = response
         this.list = students
-        this.total = students.length
+        this.total = total
         this.listLoading = false
       })
     },
@@ -206,8 +205,8 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       searchStudent(this.listQuery).then((response) => {
-        const { students } = response
-        this.total = students.length
+        const { students, total } = response
+        this.total = total
         this.list = students
       })
     },
