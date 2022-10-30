@@ -2,6 +2,15 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.student" placeholder="学生" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-date-picker
+        v-model="listQuery.timeRange"
+        style="width: 400px;"
+        class="filter-item"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -19,12 +28,12 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="课程名" align="center" width="100">
+      <el-table-column label="教师" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.subject }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="学生" width="150px" align="center">
+      <el-table-column label="课程名" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.student }}</span>
         </template>
@@ -32,36 +41,6 @@
       <el-table-column label="总课时" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.course_all }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="剩余课时" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.course_left }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="已用课时" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.course_used }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="赠送课时" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.course_free }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="总费用" width="150px">
-        <template slot-scope="{row}">
-          <span> {{ row.charge_all }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="已交费用" width="150px">
-        <template slot-scope="{row}">
-          <span> {{ row.charge_deli }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="备注" min-width="150px">
-        <template slot-scope="{row}">
-          <span> {{ row.remark }} </span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
@@ -108,9 +87,6 @@
         </el-form-item>
         <el-form-item label="已交费用" prop="charge_deli">
           <el-input v-model.number="temp.charge_deli" type="number" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="temp.remark" type="text" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -171,8 +147,7 @@ export default {
         course_used: null,
         course_free: null,
         charge_all: null,
-        charge_deli: null,
-        remark: ''
+        charge_deli: null
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -253,8 +228,7 @@ export default {
         course_used: null,
         course_free: null,
         charge_all: null,
-        charge_deli: null,
-        remark: ''
+        charge_deli: null
       }
     },
     handleCreate() {
