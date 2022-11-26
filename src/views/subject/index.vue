@@ -152,17 +152,17 @@ export default {
       this.listLoading = true
       fetchSubjectList().then(response => {
         console.log(response)
-        const { subjects } = response
+        const { subjects, total } = response
         this.list = subjects
-        this.total = subjects.length
+        this.total = total
         this.listLoading = false
       })
     },
     handleFilter() {
       this.listQuery.page = 1
       searchSubjects(this.listQuery).then((response) => {
-        const { subjects } = response
-        this.total = subjects.length
+        const { subjects, total } = response
+        this.total = total
         this.list = subjects
       })
     },

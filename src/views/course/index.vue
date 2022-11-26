@@ -6,6 +6,16 @@
       <el-select v-model="listQuery.status" placeholder="课程状态" clearable class="filter-item" style="width: 130px">
         <el-option v-for="item in courseStatusOptions" :key="item" :label="item" :value="item" />
       </el-select>
+      <el-date-picker
+        v-model="listQuery.timeRange"
+        style="width: 400px;"
+        class="filter-item"
+        type="datetimerange"
+        format="yyyy-MM-dd HH:mm"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -23,11 +33,6 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="ID" prop="id" align="center" width="80">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="课程名" align="center" width="100">
         <template slot-scope="{row}">
           <span>{{ row.subject }}</span>
@@ -35,7 +40,7 @@
       </el-table-column>
       <el-table-column label="学生" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.student }}</span>
+          <span v-for="s in row.students" :key="s">{{ s }} &nbsp;</span>
         </template>
       </el-table-column>
       <el-table-column label="教练" width="150px" align="center">
@@ -95,7 +100,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="学生" prop="student">
-          <el-select v-model="temp.student_id" placeholder="选择学生" @change="handleSelectStudent(temp.student_id)">
+          <el-select v-model="temp.student_ids" filterable :disabled="sdisabled" placeholder="课程选择后选择学生" multiple @change="handleSelectStudent()">
             <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
           </el-select>
         </el-form-item>
@@ -111,10 +116,10 @@
           <el-input v-model="temp.location" />
         </el-form-item>
         <el-form-item label="开始时间" prop="start_time">
-          <el-date-picker v-model="temp.start_time" type="datetime" value-format="timestamp" placeholder="Please pick a date" />
+          <el-date-picker v-model="temp.start_time" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp" placeholder="Please pick a date" />
         </el-form-item>
         <el-form-item label="结束时间" prop="end_time">
-          <el-date-picker v-model="temp.end_time" type="datetime" value-format="timestamp" placeholder="Please pick a date" />
+          <el-date-picker v-model="temp.end_time" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp" placeholder="Please pick a date" />
         </el-form-item>
         <el-form-item v-if="dialogStatus!=='create'" label="状态">
           <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
@@ -163,6 +168,7 @@ export default {
   },
   data() {
     return {
+      sdisabled: true,
       tableKey: 0,
       list: null,
       studentAccounts: null,
@@ -175,7 +181,10 @@ export default {
         limit: 20,
         student: null,
         teacher: null,
-        status: ''
+        status: '',
+        timeRange: null,
+        startTime: null,
+        endTime: null
       },
       courseStatusOptions,
       temp: {
@@ -183,7 +192,7 @@ export default {
         subject_id: '',
         subject: '',
         student: '',
-        student_id: '',
+        student_ids: null,
         teacher: '',
         teacher_id: '',
         school_hour: 1.0,
@@ -211,17 +220,21 @@ export default {
     getList() {
       this.listLoading = true
       fetchCourseList().then(response => {
-        const { courses } = response
+        const { courses, total } = response
         this.list = courses
-        this.total = courses.length
+        this.total = total
         this.listLoading = false
       })
     },
     handleFilter() {
       this.listQuery.page = 1
+      if (this.listQuery.timeRange != null) {
+        this.listQuery.startTime = this.listQuery.timeRange[0]
+        this.listQuery.endTime = this.listQuery.timeRange[1]
+      }
       searchCourses(this.listQuery).then((response) => {
-        const { courses } = response
-        this.total = courses.length
+        const { courses, total } = response
+        this.total = total
         this.list = courses
       })
     },
@@ -239,7 +252,7 @@ export default {
         subject_id: '',
         subject: '',
         student: '',
-        student_id: '',
+        student_ids: null,
         teacher: '',
         teacher_id: '',
         school_hour: 1.0,
@@ -336,11 +349,15 @@ export default {
       })
     },
     handleSelectStudent(studentId) {
-      this.studentAccounts.forEach(element => {
-        if (element.account_id === studentId) {
-          this.temp.student = element.username
-        }
-      })
+      if (this.temp.subject_id === '') {
+        this.$notify({
+          title: '提示',
+          message: '课程未填写',
+          type: 'warning',
+          duration: 2000
+        })
+        this.sdisabled = true
+      }
     },
     handleSelectSubject(subjectId) {
       this.subjectList.forEach(element => {
@@ -348,6 +365,7 @@ export default {
           this.temp.subject = element.name
         }
       })
+      this.sdisabled = false
     },
     handleSelectTeacher(teacherId) {
       this.teacherList.forEach(element => {

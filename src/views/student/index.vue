@@ -59,6 +59,11 @@
           <span> {{ row.charge_deli }} </span>
         </template>
       </el-table-column>
+      <el-table-column label="备注" min-width="150px">
+        <template slot-scope="{row}">
+          <span> {{ row.remark }} </span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
@@ -103,6 +108,9 @@
         </el-form-item>
         <el-form-item label="已交费用" prop="charge_deli">
           <el-input v-model.number="temp.charge_deli" type="number" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="temp.remark" type="text" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -163,7 +171,8 @@ export default {
         course_used: null,
         course_free: null,
         charge_all: null,
-        charge_deli: null
+        charge_deli: null,
+        remark: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -184,10 +193,9 @@ export default {
     getList() {
       this.listLoading = true
       fetchStudentsList().then(response => {
-        console.log(response)
-        const { students } = response
+        const { students, total } = response
         this.list = students
-        this.total = students.length
+        this.total = total
         this.listLoading = false
       })
     },
@@ -206,8 +214,8 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       searchStudent(this.listQuery).then((response) => {
-        const { students } = response
-        this.total = students.length
+        const { students, total } = response
+        this.total = total
         this.list = students
       })
     },
@@ -245,7 +253,8 @@ export default {
         course_used: null,
         course_free: null,
         charge_all: null,
-        charge_deli: null
+        charge_deli: null,
+        remark: ''
       }
     },
     handleCreate() {

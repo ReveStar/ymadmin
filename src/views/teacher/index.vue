@@ -1,11 +1,16 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.username" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.account_id" placeholder="账户ID" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.role" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in rolesOptions" :key="item.key" :label="item.value" :value="item.key" />
-      </el-select>
+      <el-input v-model="listQuery.student" placeholder="学生" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-date-picker
+        v-model="listQuery.timeRange"
+        style="width: 400px;"
+        class="filter-item"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -23,34 +28,19 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="账号ID" align="center" width="100">
+      <el-table-column label="教师" align="center" width="100">
         <template slot-scope="{row}">
-          <span>{{ row.account_id }}</span>
+          <span>{{ row.subject }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户名" width="150px">
+      <el-table-column label="课程名" width="150px" align="center">
         <template slot-scope="{row}">
-          <span> {{ row.username }} </span>
+          <span>{{ row.student }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="手机号" width="150px">
+      <el-table-column label="总课时" width="150px" align="center">
         <template slot-scope="{row}">
-          <span> {{ row.phone }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="角色" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.roles }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.create_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.update_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.course_all }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="230" class-name="small-padding fixed-width">
@@ -69,22 +59,34 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item v-if="dialogStatus==='update'" label="账户ID" prop="account_id">
-          <el-input v-model="temp.account_id" disabled placeholder="输入用户名" />
-        </el-form-item>
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="temp.username" placeholder="输入用户名" />
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="temp.phone" placeholder="输入手机号" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="temp.password" type="password" placeholder="输入密码" />
-        </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="temp.role" class="filter-item" placeholder="请选择">
-            <el-option v-for="item in rolesOptions" :key="item.key" :label="item.value" :value="item.key" />
+        <el-form-item label="课程名" prop="subject">
+          <el-select v-model="temp.subject_id" placeholder="请选择课程" @change="handleSelectSubject(temp.subject_id)">
+            <el-option v-for="item in subjectList" :key="item.subject_id" :label="item.name" :value="item.subject_id" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="学生" prop="student">
+          <el-input v-if="dialogStatus!=='create'" v-model="temp.student" disabled="true" />
+          <el-select v-else v-model="temp.student_id" placeholder="选择学生" @change="handleSelectStudent(temp.student_id)">
+            <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="总课时" prop="course_all">
+          <el-input v-model.number="temp.course_all" type="number" />
+        </el-form-item>
+        <el-form-item label="剩余课时" prop="course_left">
+          <el-input v-model.number="temp.course_left" type="number" />
+        </el-form-item>
+        <el-form-item label="已用课时" prop="course_used">
+          <el-input v-model.number="temp.course_used" type="number" />
+        </el-form-item>
+        <el-form-item label="赠送课时" prop="course_free">
+          <el-input v-model.number="temp.course_free" type="number" />
+        </el-form-item>
+        <el-form-item label="总费用" prop="charge_all">
+          <el-input v-model.number="temp.charge_all" type="number" />
+        </el-form-item>
+        <el-form-item label="已交费用" prop="charge_deli">
+          <el-input v-model.number="temp.charge_deli" type="number" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -100,18 +102,22 @@
 </template>
 
 <script>
-import { getAll, updateAccount, createAccount, deleteAccount, searchAccount } from '@/api/user'
+import { fetchStudentsList, updateStudent, createStudent, deleteStudent, searchStudent } from '@/api/student'
+import { getStudents } from '@/api/user'
+import { fetchSubjectList } from '@/api/subject'
 import { MessageBox } from 'element-ui'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'Account',
+  name: 'Student',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
+        published: 'success',
+        draft: 'info',
         deleted: 'danger'
       }
       return statusMap[status]
@@ -120,30 +126,28 @@ export default {
   data() {
     return {
       tableKey: 0,
+      studentAccounts: null,
+      subjectList: null,
       list: null,
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 20,
-        username: '',
-        account_id: '',
-        phone: '',
-        role: ''
+        student: null
       },
-      rolesOptions: [
-        { 'key': 'admin', 'value': '管理员' },
-        { 'key': 'teacher', 'value': '教师' },
-        { 'key': 'student', 'value': '学生' }
-      ],
       temp: {
         id: undefined,
-        account_id: '',
-        username: '',
-        roles: [],
-        role: '',
-        phone: '',
-        password: ''
+        subject_id: '',
+        subject: '',
+        student: '',
+        student_id: '',
+        course_all: null,
+        course_left: null,
+        course_used: null,
+        course_free: null,
+        charge_all: null,
+        charge_deli: null
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -152,47 +156,79 @@ export default {
         create: 'Create'
       },
       rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       }
     }
   },
   created() {
+    this.getStudentAccounts()
+    this.getSubjectList()
     this.getList()
   },
   methods: {
     getList() {
       this.listLoading = true
-      getAll().then(response => {
-        const { accounts, total } = response
-        this.list = accounts
+      fetchStudentsList().then(response => {
+        const { students, total } = response
+        this.list = students
         this.total = total
         this.listLoading = false
       })
     },
+    getStudentAccounts() {
+      getStudents().then(response => {
+        const { students } = response
+        this.studentAccounts = students
+      })
+    },
+    getSubjectList() {
+      fetchSubjectList().then(response => {
+        const { subjects } = response
+        this.subjectList = subjects
+      })
+    },
     handleFilter() {
       this.listQuery.page = 1
-      searchAccount(this.listQuery).then((response) => {
-        const { accounts, total } = response
+      searchStudent(this.listQuery).then((response) => {
+        const { students, total } = response
         this.total = total
-        this.list = accounts
+        this.list = students
       })
     },
     handlePaginate(data) {
       this.listQuery.page = data.page
       this.listQuery.limit = data.limit
-      searchAccount(this.listQuery).then((response) => {
-        const { accounts } = response
-        this.list = accounts
+      searchStudent(this.listQuery).then((response) => {
+        const { students } = response
+        this.list = students
+      })
+    },
+    handleSelectStudent(studentId) {
+      this.studentAccounts.forEach(element => {
+        if (element.account_id === studentId) {
+          this.temp.student = element.username
+        }
+      })
+    },
+    handleSelectSubject(subjectId) {
+      this.subjectList.forEach(element => {
+        if (element.subject_id === subjectId) {
+          this.temp.subject = element.name
+        }
       })
     },
     resetTemp() {
       this.temp = {
         id: undefined,
-        phone: '',
-        status: 'published',
-        type: ''
+        subject_id: '',
+        subject: '',
+        student: '',
+        student_id: '',
+        course_all: null,
+        course_left: null,
+        course_used: null,
+        course_free: null,
+        charge_all: null,
+        charge_deli: null
       }
     },
     handleCreate() {
@@ -206,8 +242,8 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.roles = [this.temp.role]
-          createAccount(this.temp).then(() => {
+          console.log('temp==', this.temp)
+          createStudent(this.temp).then(() => {
             this.dialogFormVisible = false
             this.$notify({
               title: 'Success',
@@ -222,7 +258,6 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.role = this.temp.roles[0]
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -233,8 +268,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.roles = [tempData.role]
-          updateAccount(tempData).then(() => {
+          updateStudent(tempData).then(() => {
             this.dialogFormVisible = false
             this.$notify({
               title: 'Success',
@@ -254,7 +288,7 @@ export default {
         type: 'warning'
       }).then(() => {
         const tempData = Object.assign({}, row)
-        deleteAccount(tempData).then(() => {
+        deleteStudent(tempData).then(() => {
           this.$notify({
             title: 'Success',
             message: 'Delete Successfully',
