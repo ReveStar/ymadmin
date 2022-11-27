@@ -59,6 +59,11 @@
           <span> {{ row.charge_deli }} </span>
         </template>
       </el-table-column>
+      <el-table-column label="状态" width="150px">
+        <template slot-scope="{row}">
+          <span> {{ row.status }} </span>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" min-width="150px">
         <template slot-scope="{row}">
           <span> {{ row.remark }} </span>
@@ -108,6 +113,9 @@
         </el-form-item>
         <el-form-item label="已交费用" prop="charge_deli">
           <el-input v-model.number="temp.charge_deli" type="number" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-input v-model="temp.status" type="text" :disabled="true" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="temp.remark" type="text" />
@@ -172,6 +180,7 @@ export default {
         course_free: null,
         charge_all: null,
         charge_deli: null,
+        status: '进行中',
         remark: ''
       },
       dialogFormVisible: false,
@@ -254,6 +263,7 @@ export default {
         course_free: null,
         charge_all: null,
         charge_deli: null,
+        status: '进行中',
         remark: ''
       }
     },
@@ -268,7 +278,6 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          console.log('temp==', this.temp)
           createStudent(this.temp).then(() => {
             this.dialogFormVisible = false
             this.$notify({

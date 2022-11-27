@@ -228,7 +228,6 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          console.log(this.temp)
           createOrder(this.temp).then(() => {
             this.dialogFormVisible = false
             this.$notify({
