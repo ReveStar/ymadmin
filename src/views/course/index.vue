@@ -94,14 +94,14 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="课程名" prop="subject">
-          <el-select v-model="temp.subject_id" placeholder="请选择课程" @change="handleSelectSubject(temp.subject_id)">
-            <el-option v-for="item in subjectList" :key="item.subject_id" :label="item.name" :value="item.subject_id" />
+        <el-form-item label="学生" prop="student">
+          <el-select v-model="temp.student_ids" multiple filterable placeholder="选择学生" @change="handleSelectStudent(temp.student_ids)">
+            <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="学生" prop="student">
-          <el-select v-model="temp.student_ids" filterable :disabled="sdisabled" placeholder="课程选择后选择学生" multiple @change="handleSelectStudent()">
-            <el-option v-for="item in studentAccounts" :key="item.account_id" :label="item.username" :value="item.account_id" />
+        <el-form-item label="课程名" prop="subject">
+          <el-select v-model="temp.subject_id" placeholder="请选择课程" @change="handleSelectSubject(temp.subject_id)">
+            <el-option v-for="item in subjectInfos" :key="item.subject_id" :label="item.name" :value="item.subject_id" />
           </el-select>
         </el-form-item>
         <el-form-item label="教练" prop="teacher">
@@ -113,7 +113,9 @@
           <el-input-number v-model="temp.school_hour" :precision="1" :step="0.1" />
         </el-form-item>
         <el-form-item label="地点" prop="location">
-          <el-input v-model="temp.location" />
+          <el-select v-model="temp.location" placeholder="选择地点">
+            <el-option v-for="item in locations" :key="item" :label="item" :value="item" />
+          </el-select>
         </el-form-item>
         <el-form-item label="开始时间" prop="start_time">
           <el-date-picker v-model="temp.start_time" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp" placeholder="Please pick a date" />
@@ -145,7 +147,9 @@
 <script>
 import { fetchCourseList, searchCourses, createCourse, deleteCourse, updateCourse } from '@/api/course'
 import { getStudents, getTeachers } from '@/api/user'
+import { searchStudent } from '@/api/student'
 import { fetchSubjectList } from '@/api/subject'
+import { InStrList } from '@/utils/util'
 import { MessageBox } from 'element-ui'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -173,6 +177,7 @@ export default {
       list: null,
       studentAccounts: null,
       subjectList: null,
+      subjectInfos: null,
       teacherList: null,
       total: 0,
       listLoading: true,
@@ -187,6 +192,7 @@ export default {
         endTime: null
       },
       courseStatusOptions,
+      locations: ['申克乒乓球俱乐部', '琦宸乒乓球俱乐部'],
       temp: {
         id: undefined,
         subject_id: '',
@@ -272,8 +278,12 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.start_time = new Date(this.temp.start_time).getTime()
-          this.temp.end_time = new Date(this.temp.end_time).getTime()
+          var t = new Date(this.temp.start_time)
+          t.setSeconds(0)
+          this.temp.start_time = t.getTime()
+          t = new Date(this.temp.end_time)
+          t.setSeconds(0)
+          this.temp.end_time = t.getTime()
           createCourse(this.temp).then(() => {
             this.dialogFormVisible = false
             this.$notify({
@@ -340,6 +350,7 @@ export default {
       fetchSubjectList().then(response => {
         const { subjects } = response
         this.subjectList = subjects
+        this.subjectInfos = subjects
       })
     },
     getTeacherAccounts() {
@@ -348,16 +359,62 @@ export default {
         this.teacherList = teachers
       })
     },
-    handleSelectStudent(studentId) {
-      if (this.temp.subject_id === '') {
-        this.$notify({
-          title: '提示',
-          message: '课程未填写',
-          type: 'warning',
-          duration: 2000
-        })
-        this.sdisabled = true
+    handleSelectStudent(studentIds) {
+      var query = {
+        status: '进行中',
+        student_ids: studentIds.toString()
       }
+      searchStudent(query).then(response => {
+        const { students } = response
+        students.sort(function(a, b) {
+          return a.student_id < b.student_id
+        })
+        var sid = students[0].student_id
+        var subjectIds = []
+        for (var o = 0; o < students.length; o++) {
+          if (students[o].student_id === sid && !InStrList(subjectIds, students[o].subject_id)) {
+            subjectIds.push(students[o].subject_id)
+          }
+          if (students[o].student_id !== sid) {
+            break
+          }
+        }
+        var newSubjectIds = []
+        for (o = 0; o < students.length; o++) {
+          if (students[o].student_id !== sid) {
+            sid = students[o].student_id
+            subjectIds = newSubjectIds
+            newSubjectIds = []
+          }
+          if (students[o].student_id === sid && InStrList(subjectIds, students[o].subject_id)) {
+            newSubjectIds.push(students[o].subject_id)
+          }
+        }
+        subjectIds = newSubjectIds
+        var subjectList = []
+        for (var i = 0; i < subjectIds.length; i++) {
+          for (var j = 0; j < this.subjectList.length; j++) {
+            if (subjectIds[i] === this.subjectList[j].subject_id) {
+              subjectList.push({
+                subject_id: students[i].subject_id,
+                name: this.subjectList[j].name
+              })
+              break
+            }
+          }
+        }
+        if (subjectList.length === 0) {
+          this.$notify.info({
+            title: 'Info',
+            message: '所选学生无相同课程',
+            duration: 2000
+          })
+          this.temp.student_ids = []
+        } else {
+          this.temp.subject_id = ''
+          this.subjectInfos = subjectList
+        }
+      })
     },
     handleSelectSubject(subjectId) {
       this.subjectList.forEach(element => {
@@ -365,7 +422,6 @@ export default {
           this.temp.subject = element.name
         }
       })
-      this.sdisabled = false
     },
     handleSelectTeacher(teacherId) {
       this.teacherList.forEach(element => {
