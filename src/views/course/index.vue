@@ -192,7 +192,7 @@ export default {
         endTime: null
       },
       courseStatusOptions,
-      locations: ['申克乒乓球俱乐部', '琦宸乒乓球俱乐部'],
+      locations: ['申克乒乓球俱乐部', '乐乐球·乒乓球俱乐部'],
       temp: {
         id: undefined,
         subject_id: '',
@@ -367,7 +367,7 @@ export default {
       searchStudent(query).then(response => {
         const { students } = response
         students.sort(function(a, b) {
-          return a.student_id < b.student_id
+          return a.student_id - b.student_id
         })
         var sid = students[0].student_id
         var subjectIds = []
