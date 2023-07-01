@@ -145,7 +145,7 @@
 </template>
 
 <script>
-import { fetchCourseList, searchCourses, createCourse, deleteCourse, updateCourse } from '@/api/course'
+import { searchCourses, createCourse, deleteCourse, updateCourse } from '@/api/course'
 import { getStudents, getTeachers } from '@/api/user'
 import { searchStudent } from '@/api/student'
 import { fetchSubjectList } from '@/api/subject'
@@ -225,7 +225,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchCourseList().then(response => {
+      searchCourses({ page: 1, limit: 20 }).then(response => {
         const { courses, total } = response
         this.list = courses
         this.total = total
